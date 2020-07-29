@@ -94,6 +94,30 @@ class MainApplication(tk.Tk):
                     sequence_str = "_" + str(sequence) + "_"
             self.files_map[filename] = split_name[0] + sequence_str + split_name[2]
 
+        def update_index(filename, index_to_update):
+            selected_temp_filename = self.files_map.get(filename)
+
+            if selected_temp_filename.find(index_to_update) > 0:
+                start_position = selected_temp_filename.find(index_to_update) + len(index_to_update)
+                index_len = 3
+                sequence = 0
+                while index_len > 0:
+                    try:
+                        sequence = int(selected_temp_filename[start_position: start_position + index_len])
+                        break
+                    except ValueError:
+                        index_len -= 1
+
+                if increment:
+                    sequence += 1
+                elif sequence > 0:
+                    sequence -= 1
+
+                self.files_map[filename] = selected_temp_filename.replace(
+                    selected_temp_filename[selected_temp_filename.find(index_to_update): start_position + index_len]
+                    , index_to_update + str(sequence)
+                    , 1)
+
         if item_type == 'step':
             if self.rename_radio_value.get() == 2:
                 items = self.source_files_box.curselection()
@@ -104,7 +128,16 @@ class MainApplication(tk.Tk):
             else:
                 for filename in self.files_map.keys():
                     update_step(filename)
+        else:
+            if self.rename_radio_value.get() == 2:
+                items = self.source_files_box.curselection()
+                for item in items:
+                    selected_filename = self.original_filenames_map.get(item)
+                    update_index(selected_filename, item_type)
 
+            else:
+                for filename in self.files_map.keys():
+                    update_index(filename, item_type)
 
         self.show_items(self.files_map.values(), self.result_files_box, True)
 
@@ -175,17 +208,17 @@ class MainApplication(tk.Tk):
             .grid(row=3, column=5, padx=(0, 0), pady=(0, 0))
         tk.Button(self.inputFrame, text="Step+", command=lambda: self.step_button('step', True), height=1)\
             .grid(row=3, column=6, padx=(0, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="cl-", command=lambda: self.step_button('cl', False), height=1)\
+        tk.Button(self.inputFrame, text="cl-", command=lambda: self.step_button('_cl', False), height=1)\
             .grid(row=3, column=7, padx=(10, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="cl+", command=lambda: self.step_button('cl', True), height=1)\
+        tk.Button(self.inputFrame, text="cl+", command=lambda: self.step_button('_cl', True), height=1)\
             .grid(row=3, column=8, padx=(0, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="en-", command=lambda: self.step_button('en', False), height=1)\
+        tk.Button(self.inputFrame, text="en-", command=lambda: self.step_button('_en', False), height=1)\
             .grid(row=3, column=9, padx=(10, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="en+", command=lambda: self.step_button('en', True), height=1)\
+        tk.Button(self.inputFrame, text="en+", command=lambda: self.step_button('_en', True), height=1)\
             .grid(row=3, column=10, padx=(0, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="i-", command=lambda: self.step_button('i', False), height=1)\
+        tk.Button(self.inputFrame, text="i-", command=lambda: self.step_button('_i', False), height=1)\
             .grid(row=3, column=11, padx=(10, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="i+", command=lambda: self.step_button('i', True), height=1)\
+        tk.Button(self.inputFrame, text="i+", command=lambda: self.step_button('_i', True), height=1)\
             .grid(row=3, column=12, padx=(0, 0), pady=(0, 0))
 
     def build_output_frame(self):
