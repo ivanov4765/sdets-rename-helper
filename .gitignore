@@ -1,2 +1,5 @@
 # Ignored files
 /.idea
+/build
+/dist
+SDETsHelper.spec
