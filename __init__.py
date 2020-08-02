@@ -29,6 +29,15 @@ class MainApplication(tk.Tk):
         self.source_files_box.yview(*scroll_position)
         self.result_files_box.yview(*scroll_position)
 
+    def run_test_button(self):
+        if 'TestTool' in os.environ:
+            if self.path_input_text_variable.get():
+                test_tool_path = os.environ.get('TestTool').replace("\\", "\\\\")
+                os.system("start \"\" cmd /k \"cd /D " + test_tool_path + "  & test.bat run \""
+                          + self.path_input_text_variable.get().replace("/", "\\") + "\" \"")
+        else:
+            self.error_message_label.configure(text="Error Running the test. 'TestTool' environment variable is not set.")
+
     def rename_all_files(self, new_name):
         if self.rename_radio_value.get() == 2:
             items = self.source_files_box.curselection()
@@ -77,7 +86,7 @@ class MainApplication(tk.Tk):
             else:
                 self.reset_messages()
         else:
-            self.error_message_label.configure(text="Noting to rename!")
+            self.error_message_label.configure(text="Nothing to rename!")
 
     def open_path_button(self):
         # Enter Path section
@@ -199,52 +208,52 @@ class MainApplication(tk.Tk):
             self.rename_all_files(new_name)
 
         # Enter Path section
-        path_label = tk.Label(self.inputFrame, text="Enter Path: ")
-        path_label.grid(row=0, column=0, pady=(10, 0), padx=(10, 0))
+        path_label = tk.Label(self.inputFrame, text="Enter Files Path: ")
+        path_label.grid(row=0, column=0, pady=(10, 0), padx=(10, 0), sticky='w')
         self.path_input_text_variable = tk.StringVar()
         self.path_input = tk.Entry(self.inputFrame, width=30, textvariable=self.path_input_text_variable)
         self.path_input.bind('<Return>', enter_handler)
-        self.path_input.grid(row=0, column=1, pady=(10, 0), padx=(0, 0))
+        self.path_input.grid(row=0, column=1, pady=(10, 0), padx=(0, 0), sticky='w')
         tk.Button(self.inputFrame, text="browse", command=self.open_path_button, height=1).grid(row=0, column=2,
                                                                                                 pady=(10, 0),
-                                                                                                padx=(0, 0))
+                                                                                                padx=(0, 0), sticky='w')
 
         # Enter Name section
-        tk.Label(self.inputFrame, text="Enter Name:").grid(row=0, column=3, pady=(10, 0), padx=(365, 0), sticky='e')
+        tk.Label(self.inputFrame, text="Enter Name:").grid(row=0, column=4, pady=(10, 0), padx=(30, 0), sticky='e')
         self.name_input_text_variable = tk.StringVar()
         name_input = tk.Entry(self.inputFrame, width=30, textvariable=self.name_input_text_variable)
-        name_input.grid(row=0, column=4, columnspan=2, pady=(10, 0), padx=(10, 0))
+        name_input.grid(row=0, column=5, columnspan=2, pady=(10, 0), padx=(10, 0))
         name_input.bind('<KeyRelease>', key_pressed_handler)
 
         # Rename all Radio Buttons
         self.rename_radio_value = tk.IntVar()
-        tk.Label(self.inputFrame, text="Rename:").grid(row=1, column=3, pady=(0, 0), padx=(365, 0), sticky='e')
+        tk.Label(self.inputFrame, text="Rename:").grid(row=1, column=4, pady=(0, 0), padx=(0, 0), sticky='e')
         tk.Radiobutton(self.inputFrame, text="All", variable=self.rename_radio_value,
                        value=1, command=lambda: select_handler()) \
-            .grid(row=1, column=4, pady=(0, 0), padx=(10, 0), sticky='w')
+            .grid(row=1, column=5, pady=(0, 0), padx=(10, 0), sticky='w')
         tk.Radiobutton(self.inputFrame, text="Selected", variable=self.rename_radio_value,
                        value=2, command=lambda: select_handler()) \
-            .grid(row=1, column=5, pady=(0, 0), padx=(10, 0), sticky='w')
+            .grid(row=1, column=6, pady=(0, 0), padx=(0, 0), sticky='w')
         self.rename_radio_value.set(1)
 
-        tk.Button(self.inputFrame, text="Remove 'Copy'", command=lambda: self.remove_copy_button(), height=1) \
-            .grid(row=2, column=4, padx=(0, 0), pady=(0, 0))
+        tk.Button(self.inputFrame, text="Run Test", command=lambda: self.run_test_button(), height=1, width=12) \
+            .grid(row=2, column=0, padx=(10, 0), pady=(0, 0))
         tk.Button(self.inputFrame, text="Step-", command=lambda: self.step_button('step', False), height=1) \
-            .grid(row=2, column=6, padx=(0, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="Step+", command=lambda: self.step_button('step', True), height=1) \
             .grid(row=2, column=7, padx=(0, 0), pady=(0, 0))
+        tk.Button(self.inputFrame, text="Step+", command=lambda: self.step_button('step', True), height=1) \
+            .grid(row=2, column=8, padx=(0, 0), pady=(0, 0))
         tk.Button(self.inputFrame, text="cl-", command=lambda: self.step_button('_cl', False), height=1) \
-            .grid(row=2, column=8, padx=(10, 0), pady=(0, 0))
+            .grid(row=2, column=9, padx=(10, 0), pady=(0, 0))
         tk.Button(self.inputFrame, text="cl+", command=lambda: self.step_button('_cl', True), height=1) \
-            .grid(row=2, column=9, padx=(0, 0), pady=(0, 0))
+            .grid(row=2, column=10, padx=(0, 0), pady=(0, 0))
         tk.Button(self.inputFrame, text="en-", command=lambda: self.step_button('_en', False), height=1) \
-            .grid(row=2, column=10, padx=(10, 0), pady=(0, 0))
+            .grid(row=2, column=11, padx=(10, 0), pady=(0, 0))
         tk.Button(self.inputFrame, text="en+", command=lambda: self.step_button('_en', True), height=1) \
-            .grid(row=2, column=11, padx=(0, 0), pady=(0, 0))
+            .grid(row=2, column=12, padx=(0, 0), pady=(0, 0))
         tk.Button(self.inputFrame, text="i-", command=lambda: self.step_button('_i', False), height=1) \
-            .grid(row=2, column=12, padx=(10, 0), pady=(0, 0))
+            .grid(row=2, column=13, padx=(10, 0), pady=(0, 0))
         tk.Button(self.inputFrame, text="i+", command=lambda: self.step_button('_i', True), height=1) \
-            .grid(row=2, column=13, padx=(0, 0), pady=(0, 0))
+            .grid(row=2, column=14, padx=(0, 0), pady=(0, 0))
 
     def build_output_frame(self):
         def on_single_click_release(event):
@@ -272,14 +281,14 @@ class MainApplication(tk.Tk):
             self.result_files_box.yview(*args)
 
         # Before box - displaying original filenames
-        tk.Label(self.outputFrame, text="Before:").grid(row=0, column=0, pady=(10, 0), padx=(10, 0), sticky='w')
-        self.source_files_box = tk.Listbox(self.outputFrame, width=100, height=45, selectmode=tk.EXTENDED,
+        tk.Label(self.outputFrame, text="Before:").grid(row=0, column=0, pady=(5, 0), padx=(10, 0), sticky='w')
+        self.source_files_box = tk.Listbox(self.outputFrame, selectmode=tk.EXTENDED,
                                            activestyle='none')
-        self.source_files_box.grid(row=1, column=0, pady=10, padx=(10, 0))
+        self.source_files_box.grid(row=1, column=0, pady=5, padx=(15, 0), sticky="nsew")
         self.source_files_box.bind('<Double-Button-1>', self.on_double_click)
         self.source_files_box.bind('<ButtonRelease-1>', on_single_click_release)
         self.source_files_scrollbar = tk.Scrollbar(self.outputFrame, orient="vertical")
-        self.source_files_scrollbar.grid(row=1, column=1, pady=10, sticky="nsw")
+        self.source_files_scrollbar.grid(row=1, column=1, pady=5, sticky="nsw")
         self.source_files_scrollbar.config(command=yview)
         self.source_files_box.config(yscrollcommand=yscroll1)
         self.source_files_box.configure(exportselection=False)
@@ -289,29 +298,29 @@ class MainApplication(tk.Tk):
         tk.Label(self.outputFrame, text="->", anchor="center").grid(row=1, column=2, padx=(10, 0), sticky='nsew')
 
         # After box - displaying updated filenames
-        tk.Label(self.outputFrame, text="After:").grid(row=0, column=3, pady=(10, 0), padx=(10, 0), sticky='w')
-        self.result_files_box = tk.Listbox(self.outputFrame, width=100, height=45,
+        tk.Label(self.outputFrame, text="After:").grid(row=0, column=3, pady=(5, 0), padx=(10, 0), sticky='w')
+        self.result_files_box = tk.Listbox(self.outputFrame,
                                            selectmode=tk.SINGLE, selectbackground='white',
                                            selectforeground='black',
                                            activestyle='none')
-        self.result_files_box.grid(row=1, column=3, pady=10, padx=(10, 0))
+        self.result_files_box.grid(row=1, column=3, pady=5, padx=(10, 0), sticky="nsew")
         self.result_files_box.bind('<Double-Button-1>', self.on_double_click)
         self.result_files_scrollbar = tk.Scrollbar(self.outputFrame, orient="vertical")
-        self.result_files_scrollbar.grid(row=1, column=4, pady=10, sticky="nsw")
+        self.result_files_scrollbar.grid(row=1, column=4, pady=5, padx=(0, 15), sticky="nsw")
         self.result_files_scrollbar.config(command=yview)
         self.result_files_box.config(yscrollcommand=yscroll2)
 
     def build_messages_frame(self):
-        self.output_message_label = tk.Label(self.messagesFrame, width=145, text="", anchor="w")
-        self.output_message_label.grid(row=0, column=0, padx=10, sticky='w')
+        self.output_message_label = tk.Label(self.messagesFrame, text="", anchor="w")
+        self.output_message_label.grid(row=0, column=0, padx=5, sticky='w')
 
-        self.error_message_label = tk.Label(self.messagesFrame, width=145, text="", anchor="w")
-        self.error_message_label.grid(row=1, column=0, padx=10, sticky='w')
-        tk.Button(self.messagesFrame, text="Refresh", command=self.build_files_box, width=15) \
-            .grid(row=0, column=2, pady=(10, 0), padx=(0, 0))
+        self.error_message_label = tk.Label(self.messagesFrame, text="", anchor="w", fg="red")
+        self.error_message_label.grid(row=1, column=0, padx=5, sticky='w')
+        tk.Button(self.messagesFrame, text="Refresh", command=self.build_files_box, width=8) \
+            .grid(row=0, column=1, pady=(5, 0), padx=(0, 0), sticky='nsew')
 
-        tk.Button(self.messagesFrame, text="Save", command=self.save_button_handler, width=15) \
-            .grid(row=0, column=3, pady=(10, 0), padx=(5, 0))
+        tk.Button(self.messagesFrame, text="Save", command=self.save_button_handler, width=8) \
+            .grid(row=0, column=2, pady=(5, 0), padx=(5, 15), sticky='nsew')
 
     def on_double_click(self, evt):
         # Note here that Tkinter passes an event object to onselect()
@@ -322,10 +331,13 @@ class MainApplication(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.title("Welcome to SDETs rename helper")
+        self.title("SDETs rename helper")
         self.inputFrame = tk.Frame()
         self.outputFrame = tk.Frame()
         self.messagesFrame = tk.Frame()
+        self.minsize(900, 400)
+
+        self.geometry("1250x700")
 
         self.build_input_frame()
         self.build_output_frame()
@@ -334,6 +346,43 @@ class MainApplication(tk.Tk):
         self.inputFrame.grid(row=0, column=0, sticky='nsew')
         self.outputFrame.grid(row=1, column=0, sticky='nsew')
         self.messagesFrame.grid(row=2, column=0, sticky='nsew')
+
+        self.inputFrame.columnconfigure(0, weight=1)
+        self.inputFrame.columnconfigure(1, weight=1)
+        self.inputFrame.columnconfigure(2, weight=1)
+        self.inputFrame.columnconfigure(3, weight=90, minsize=120)
+        self.inputFrame.columnconfigure(4, weight=1)
+        self.inputFrame.columnconfigure(5, weight=1)
+        self.inputFrame.columnconfigure(6, weight=1)
+        self.inputFrame.columnconfigure(7, weight=1)
+        self.inputFrame.columnconfigure(8, weight=1)
+        self.inputFrame.columnconfigure(9, weight=1)
+        self.inputFrame.columnconfigure(10, weight=1)
+        self.inputFrame.columnconfigure(11, weight=1)
+        self.inputFrame.columnconfigure(12, weight=1)
+        self.inputFrame.columnconfigure(13, weight=1)
+        self.inputFrame.columnconfigure(14, weight=1)
+        self.inputFrame.rowconfigure(0, weight=1)
+        self.inputFrame.rowconfigure(1, weight=1)
+        self.inputFrame.rowconfigure(2, weight=1)
+
+
+        self.outputFrame.columnconfigure(0, weight=50)
+        self.outputFrame.columnconfigure(1, weight=1)
+        self.outputFrame.columnconfigure(2, weight=1)
+        self.outputFrame.columnconfigure(3, weight=50)
+        self.outputFrame.columnconfigure(4, weight=1)
+        self.outputFrame.rowconfigure(0, weight=1)
+        self.outputFrame.rowconfigure(1, weight=50)
+
+        self.messagesFrame.columnconfigure(0, weight=50)
+        self.messagesFrame.columnconfigure(1, weight=1)
+        self.messagesFrame.columnconfigure(2, weight=1)
+
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=50)
+        self.rowconfigure(2, weight=1)
 
 
 MainApplication().mainloop()
