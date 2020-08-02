@@ -1,23 +1,23 @@
-import tkinter as tk
-import os
+from tkinter import Tk, END, Listbox, Label, StringVar, Entry, Button, IntVar, Radiobutton, EXTENDED, Scrollbar, SINGLE, Frame
+from os import listdir, system, environ, rename, startfile
 from tkinter import filedialog, messagebox
 
 
-class MainApplication(tk.Tk):
+class MainApplication(Tk):
     files_map: dict = {}
     original_filenames_map: dict = {}
     scroll_bar_position = (0.0, 1.0)
 
     def reset_files_boxes(self):
-        self.result_files_box.delete(0, tk.END)
+        self.result_files_box.delete(0, END)
         for item in self.files_map.keys():
             self.files_map[item] = item
 
-    def show_items(self, list_of_items: list, target_box: tk.Listbox, check_original: bool):
-        target_box.delete(0, tk.END)
+    def show_items(self, list_of_items: list, target_box: Listbox, check_original: bool):
+        target_box.delete(0, END)
         index = 0
         for item in list_of_items:
-            target_box.insert(tk.END, item)
+            target_box.insert(END, item)
             if check_original and not self.files_map.get(item):
                 self.source_files_box.itemconfig(index, {'fg': 'gray50'})
                 target_box.itemconfig(index, {'fg': 'red'})
@@ -30,10 +30,10 @@ class MainApplication(tk.Tk):
         self.result_files_box.yview(*scroll_position)
 
     def run_test_button(self):
-        if 'TestTool' in os.environ:
+        if 'TestTool' in environ:
             if self.path_input_text_variable.get():
-                test_tool_path = os.environ.get('TestTool').replace("\\", "\\\\")
-                os.system("start \"\" cmd /k \"cd /D " + test_tool_path + "  & test.bat run \""
+                test_tool_path = environ.get('TestTool').replace("\\", "\\\\")
+                system("start \"\" cmd /k \"cd /D " + test_tool_path + "  & test.bat run \""
                           + self.path_input_text_variable.get().replace("/", "\\") + "\" \"")
         else:
             self.error_message_label.configure(text="Error Running the test. 'TestTool' environment variable is not set.")
@@ -74,7 +74,7 @@ class MainApplication(tk.Tk):
                         src = current_dir + "\\" + item
                         dst = current_dir + "\\" + self.files_map[item]
                         try:
-                            os.rename(src, dst)
+                            rename(src, dst)
                             renamed_files += 1
                         except FileExistsError:
                             files_not_renamed += 1
@@ -174,7 +174,7 @@ class MainApplication(tk.Tk):
             self.files_map.clear()
             self.original_filenames_map.clear()
             index = 0
-            for filename in os.listdir(self.path_input_text_variable.get()):
+            for filename in listdir(self.path_input_text_variable.get()):
                 self.files_map[filename] = filename
                 if index == 0:
                     split_name = filename.split("_", 1)
@@ -188,8 +188,8 @@ class MainApplication(tk.Tk):
 
         except FileNotFoundError:
             self.error_message_label.configure(text="Invalid Path provided")
-            self.source_files_box.delete(0, tk.END)
-            self.result_files_box.delete(0, tk.END)
+            self.source_files_box.delete(0, END)
+            self.result_files_box.delete(0, END)
 
         except FileExistsError:
             self.error_message_label.configure(text="Cannot create a file when that file already exists")
@@ -208,51 +208,51 @@ class MainApplication(tk.Tk):
             self.rename_all_files(new_name)
 
         # Enter Path section
-        path_label = tk.Label(self.inputFrame, text="Enter Files Path: ")
+        path_label = Label(self.inputFrame, text="Enter Files Path: ")
         path_label.grid(row=0, column=0, pady=(10, 0), padx=(10, 0), sticky='w')
-        self.path_input_text_variable = tk.StringVar()
-        self.path_input = tk.Entry(self.inputFrame, width=30, textvariable=self.path_input_text_variable)
+        self.path_input_text_variable = StringVar()
+        self.path_input = Entry(self.inputFrame, width=30, textvariable=self.path_input_text_variable)
         self.path_input.bind('<Return>', enter_handler)
         self.path_input.grid(row=0, column=1, pady=(10, 0), padx=(0, 0), sticky='w')
-        tk.Button(self.inputFrame, text="browse", command=self.open_path_button, height=1).grid(row=0, column=2,
+        Button(self.inputFrame, text="browse", command=self.open_path_button, height=1).grid(row=0, column=2,
                                                                                                 pady=(10, 0),
                                                                                                 padx=(0, 0), sticky='w')
 
         # Enter Name section
-        tk.Label(self.inputFrame, text="Enter Name:").grid(row=0, column=4, pady=(10, 0), padx=(30, 0), sticky='e')
-        self.name_input_text_variable = tk.StringVar()
-        name_input = tk.Entry(self.inputFrame, width=30, textvariable=self.name_input_text_variable)
+        Label(self.inputFrame, text="Enter Name:").grid(row=0, column=4, pady=(10, 0), padx=(30, 0), sticky='e')
+        self.name_input_text_variable = StringVar()
+        name_input = Entry(self.inputFrame, width=30, textvariable=self.name_input_text_variable)
         name_input.grid(row=0, column=5, columnspan=2, pady=(10, 0), padx=(10, 0))
         name_input.bind('<KeyRelease>', key_pressed_handler)
 
         # Rename all Radio Buttons
-        self.rename_radio_value = tk.IntVar()
-        tk.Label(self.inputFrame, text="Rename:").grid(row=1, column=4, pady=(0, 0), padx=(0, 0), sticky='e')
-        tk.Radiobutton(self.inputFrame, text="All", variable=self.rename_radio_value,
+        self.rename_radio_value = IntVar()
+        Label(self.inputFrame, text="Rename:").grid(row=1, column=4, pady=(0, 0), padx=(0, 0), sticky='e')
+        Radiobutton(self.inputFrame, text="All", variable=self.rename_radio_value,
                        value=1, command=lambda: select_handler()) \
             .grid(row=1, column=5, pady=(0, 0), padx=(10, 0), sticky='w')
-        tk.Radiobutton(self.inputFrame, text="Selected", variable=self.rename_radio_value,
+        Radiobutton(self.inputFrame, text="Selected", variable=self.rename_radio_value,
                        value=2, command=lambda: select_handler()) \
             .grid(row=1, column=6, pady=(0, 0), padx=(0, 0), sticky='w')
         self.rename_radio_value.set(1)
 
-        tk.Button(self.inputFrame, text="Run Test", command=lambda: self.run_test_button(), height=1, width=12) \
+        Button(self.inputFrame, text="Run Test", command=lambda: self.run_test_button(), height=1, width=12) \
             .grid(row=2, column=0, padx=(10, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="Step-", command=lambda: self.step_button('step', False), height=1) \
+        Button(self.inputFrame, text="Step-", command=lambda: self.step_button('step', False), height=1) \
             .grid(row=2, column=7, padx=(0, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="Step+", command=lambda: self.step_button('step', True), height=1) \
+        Button(self.inputFrame, text="Step+", command=lambda: self.step_button('step', True), height=1) \
             .grid(row=2, column=8, padx=(0, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="cl-", command=lambda: self.step_button('_cl', False), height=1) \
+        Button(self.inputFrame, text="cl-", command=lambda: self.step_button('_cl', False), height=1) \
             .grid(row=2, column=9, padx=(10, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="cl+", command=lambda: self.step_button('_cl', True), height=1) \
+        Button(self.inputFrame, text="cl+", command=lambda: self.step_button('_cl', True), height=1) \
             .grid(row=2, column=10, padx=(0, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="en-", command=lambda: self.step_button('_en', False), height=1) \
+        Button(self.inputFrame, text="en-", command=lambda: self.step_button('_en', False), height=1) \
             .grid(row=2, column=11, padx=(10, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="en+", command=lambda: self.step_button('_en', True), height=1) \
+        Button(self.inputFrame, text="en+", command=lambda: self.step_button('_en', True), height=1) \
             .grid(row=2, column=12, padx=(0, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="i-", command=lambda: self.step_button('_i', False), height=1) \
+        Button(self.inputFrame, text="i-", command=lambda: self.step_button('_i', False), height=1) \
             .grid(row=2, column=13, padx=(10, 0), pady=(0, 0))
-        tk.Button(self.inputFrame, text="i+", command=lambda: self.step_button('_i', True), height=1) \
+        Button(self.inputFrame, text="i+", command=lambda: self.step_button('_i', True), height=1) \
             .grid(row=2, column=14, padx=(0, 0), pady=(0, 0))
 
     def build_output_frame(self):
@@ -281,13 +281,13 @@ class MainApplication(tk.Tk):
             self.result_files_box.yview(*args)
 
         # Before box - displaying original filenames
-        tk.Label(self.outputFrame, text="Before:").grid(row=0, column=0, pady=(5, 0), padx=(10, 0), sticky='w')
-        self.source_files_box = tk.Listbox(self.outputFrame, selectmode=tk.EXTENDED,
+        Label(self.outputFrame, text="Before:").grid(row=0, column=0, pady=(5, 0), padx=(10, 0), sticky='w')
+        self.source_files_box = Listbox(self.outputFrame, selectmode=EXTENDED,
                                            activestyle='none')
         self.source_files_box.grid(row=1, column=0, pady=5, padx=(15, 0), sticky="nsew")
         self.source_files_box.bind('<Double-Button-1>', self.on_double_click)
         self.source_files_box.bind('<ButtonRelease-1>', on_single_click_release)
-        self.source_files_scrollbar = tk.Scrollbar(self.outputFrame, orient="vertical")
+        self.source_files_scrollbar = Scrollbar(self.outputFrame, orient="vertical")
         self.source_files_scrollbar.grid(row=1, column=1, pady=5, sticky="nsw")
         self.source_files_scrollbar.config(command=yview)
         self.source_files_box.config(yscrollcommand=yscroll1)
@@ -295,31 +295,31 @@ class MainApplication(tk.Tk):
 
         # '->' label between the 2 boxes
         # TODO: add a custom image instead of plain text
-        tk.Label(self.outputFrame, text="->", anchor="center").grid(row=1, column=2, padx=(10, 0), sticky='nsew')
+        Label(self.outputFrame, text="->", anchor="center").grid(row=1, column=2, padx=(10, 0), sticky='nsew')
 
         # After box - displaying updated filenames
-        tk.Label(self.outputFrame, text="After:").grid(row=0, column=3, pady=(5, 0), padx=(10, 0), sticky='w')
-        self.result_files_box = tk.Listbox(self.outputFrame,
-                                           selectmode=tk.SINGLE, selectbackground='white',
+        Label(self.outputFrame, text="After:").grid(row=0, column=3, pady=(5, 0), padx=(10, 0), sticky='w')
+        self.result_files_box = Listbox(self.outputFrame,
+                                           selectmode=SINGLE, selectbackground='white',
                                            selectforeground='black',
                                            activestyle='none')
         self.result_files_box.grid(row=1, column=3, pady=5, padx=(10, 0), sticky="nsew")
         self.result_files_box.bind('<Double-Button-1>', self.on_double_click)
-        self.result_files_scrollbar = tk.Scrollbar(self.outputFrame, orient="vertical")
+        self.result_files_scrollbar = Scrollbar(self.outputFrame, orient="vertical")
         self.result_files_scrollbar.grid(row=1, column=4, pady=5, padx=(0, 15), sticky="nsw")
         self.result_files_scrollbar.config(command=yview)
         self.result_files_box.config(yscrollcommand=yscroll2)
 
     def build_messages_frame(self):
-        self.output_message_label = tk.Label(self.messagesFrame, text="", anchor="w")
+        self.output_message_label = Label(self.messagesFrame, text="", anchor="w")
         self.output_message_label.grid(row=0, column=0, padx=5, sticky='w')
 
-        self.error_message_label = tk.Label(self.messagesFrame, text="", anchor="w", fg="red")
+        self.error_message_label = Label(self.messagesFrame, text="", anchor="w", fg="red")
         self.error_message_label.grid(row=1, column=0, padx=5, sticky='w')
-        tk.Button(self.messagesFrame, text="Refresh", command=self.build_files_box, width=8) \
+        Button(self.messagesFrame, text="Refresh", command=self.build_files_box, width=8) \
             .grid(row=0, column=1, pady=(5, 0), padx=(0, 0), sticky='nsew')
 
-        tk.Button(self.messagesFrame, text="Save", command=self.save_button_handler, width=8) \
+        Button(self.messagesFrame, text="Save", command=self.save_button_handler, width=8) \
             .grid(row=0, column=2, pady=(5, 0), padx=(5, 15), sticky='nsew')
 
     def on_double_click(self, evt):
@@ -327,14 +327,14 @@ class MainApplication(tk.Tk):
         w = evt.widget
         index = int(w.curselection()[0])
         value = w.get(index)
-        os.startfile(self.path_input.get() + '/' + value)
+        startfile(self.path_input.get() + '/' + value)
 
     def __init__(self):
         super().__init__()
         self.title("SDETs rename helper")
-        self.inputFrame = tk.Frame()
-        self.outputFrame = tk.Frame()
-        self.messagesFrame = tk.Frame()
+        self.inputFrame = Frame()
+        self.outputFrame = Frame()
+        self.messagesFrame = Frame()
         self.minsize(900, 400)
 
         self.geometry("1250x700")
