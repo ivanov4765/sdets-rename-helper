@@ -1,5 +1,5 @@
 from tkinter import Tk, END, Listbox, Label, StringVar, Entry, Button, IntVar, Radiobutton, EXTENDED, Scrollbar, SINGLE, Frame
-from os import listdir, system, environ, rename, startfile, getcwd
+from os import listdir, system, environ, rename, startfile, getcwd, path
 from tkinter import filedialog, messagebox
 from sys import argv
 
@@ -9,6 +9,11 @@ class MainApplication(Tk):
     original_filenames_map: dict = {}
     scroll_bar_position = (0.0, 1.0)
     cmd_args = "/k"
+
+    def get_all_files(self, files_path):
+        for file in listdir(files_path):
+            if path.isfile(path.join(files_path, file)):
+                yield file
 
     def reset_files_boxes(self):
         self.result_files_box.delete(0, END)
@@ -176,7 +181,7 @@ class MainApplication(Tk):
             self.files_map.clear()
             self.original_filenames_map.clear()
             index = 0
-            for filename in listdir(self.path_input_text_variable.get()):
+            for filename in self.get_all_files(self.path_input_text_variable.get()):
                 self.files_map[filename] = filename
                 if index == 0:
                     split_name = filename.split("_", 1)
