@@ -1,12 +1,14 @@
 from tkinter import Tk, END, Listbox, Label, StringVar, Entry, Button, IntVar, Radiobutton, EXTENDED, Scrollbar, SINGLE, Frame
-from os import listdir, system, environ, rename, startfile
+from os import listdir, system, environ, rename, startfile, getcwd
 from tkinter import filedialog, messagebox
+from sys import argv
 
 
 class MainApplication(Tk):
     files_map: dict = {}
     original_filenames_map: dict = {}
     scroll_bar_position = (0.0, 1.0)
+    cmd_args = "/k"
 
     def reset_files_boxes(self):
         self.result_files_box.delete(0, END)
@@ -33,7 +35,7 @@ class MainApplication(Tk):
         if 'TestTool' in environ:
             if self.path_input_text_variable.get():
                 test_tool_path = environ.get('TestTool').replace("\\", "\\\\")
-                system("start \"\" cmd /k \"cd /D " + test_tool_path + "  & test.bat run \""
+                system("start \"\" cmd " + self.cmd_args + " \"cd /D " + test_tool_path + "  & test.bat run \""
                           + self.path_input_text_variable.get().replace("/", "\\") + "\" \"")
         else:
             self.error_message_label.configure(text="Error Running the test. 'TestTool' environment variable is not set.")
@@ -342,6 +344,12 @@ class MainApplication(Tk):
         self.build_input_frame()
         self.build_output_frame()
         self.build_messages_frame()
+
+        self.path_input_text_variable.set(getcwd())
+        self.build_files_box()
+
+        if len(argv) > 2 and argv[2]:
+            self.cmd_args = argv[2]
 
         self.inputFrame.grid(row=0, column=0, sticky='nsew')
         self.outputFrame.grid(row=1, column=0, sticky='nsew')
